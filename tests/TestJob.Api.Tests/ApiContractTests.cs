@@ -1,4 +1,5 @@
 // Журнал изменений:
+// 28-09-2026 — Сильченко Артем — Зафиксирован публичный маршрут OpenAPI-схемы для Swagger UI.
 // 28-09-2026 — Сильченко Артем — Добавлены проверки единого контракта ошибок HTTP API.
 
 using System.Net;
@@ -36,6 +37,18 @@ public sealed class ApiContractTests : IClassFixture<WebApplicationFactory<Progr
             });
             builder.ConfigureLogging(logging => logging.ClearProviders());
         }).CreateClient();
+    }
+
+    /// <summary>
+    /// Проверяет доступность OpenAPI-схемы по маршруту, используемому Swagger UI.
+    /// </summary>
+    [Fact]
+    public async Task SwaggerJson_ReturnsOpenApiDefinition()
+    {
+        using var response = await client.GetAsync("/api/swagger/v1/swagger.json");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
     }
 
     /// <summary>

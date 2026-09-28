@@ -1,4 +1,5 @@
 // Журнал изменений:
+// 28-09-2026 — Сильченко Артем — Согласован маршрут OpenAPI-схемы с адресом Swagger UI.
 // 28-09-2026 — Сильченко Артем — Унифицированы ответы для ошибок JSON и model binding.
 // 28-09-2026 — Сильченко Артем — Добавлена XML-документация точки входа приложения.
 // 28-09-2026 — Сильченко Артем — Настроены REST API, Swagger, FluentValidation и доступ к PostgreSQL.
@@ -38,7 +39,7 @@ builder.Services.AddSingleton(sp =>
 });
 
 var app = builder.Build();
-app.UseSwagger();
+app.UseSwagger(options => options.RouteTemplate = "api/swagger/{documentName}/swagger.json");
 app.UseSwaggerUI(options => options.RoutePrefix = "api/swagger");
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
