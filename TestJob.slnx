@@ -1,0 +1,11 @@
+<!-- Журнал изменений:
+28-09-2026 — Сильченко Артем — Объединены API и тестовый проект в единое решение.
+-->
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TestJob.Api/TestJob.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TestJob.Api.Tests/TestJob.Api.Tests.csproj" />
+  </Folder>
+</Solution>

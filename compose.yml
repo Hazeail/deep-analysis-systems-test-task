@@ -1,0 +1,57 @@
+# Журнал изменений:
+# 28-09-2026 — Сильченко Артем — Исправлен bootstrap-email, отклоняемый pgAdmin 9.18.
+# 28-09-2026 — Сильченко Артем — Добавлен локальный стек API, PostgreSQL 18 и pgAdmin.
+
+services:
+  api:
+    image: mcr.microsoft.com/dotnet/sdk:10.0.302
+    working_dir: /src
+    command: ["sh", "/src/docker/app/entrypoint.sh"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=testjob;Username=testjob;Password=testjob-local-only
+    volumes:
+      - .:/src
+      - nuget-cache:/root/.nuget/packages
+    ports:
+      - "8090:8090"
+    depends_on:
+      postgres:
+        condition: service_healthy
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: testjob
+      POSTGRES_USER: testjob
+      POSTGRES_PASSWORD: testjob-local-only
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testjob -d testjob"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  pgadmin:
+    image: dpage/pgadmin4:9.18
+    environment:
+      PGADMIN_DEFAULT_EMAIL: testjob@example.com
+      PGADMIN_DEFAULT_PASSWORD: testjob-local-only
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      PGPASS_FILE: /pgpass
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+      - ./docker/pgadmin/pgpass:/pgpass:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  pgadmin-data:
+  nuget-cache:
